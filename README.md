@@ -15,4 +15,4 @@ Here are some ideas to get you started:
 - ⚡ Fun fact: ...
 -->
 
-[Random Cat Image](cats/cat_udong.jpg)
+![Random Cat Image](cats/cat_udong.jpg)
