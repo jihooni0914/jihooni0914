@@ -23,14 +23,23 @@ jobs:
         IMAGE_URL=$(curl -s https://api.thecatapi.com/v1/images/search | jq -r '.[0].url')
         curl -s $IMAGE_URL -o "cat_$DATE.jpg"
 
+    - name: Update README with new image
+      run: |
+        DATE=$(date '+%Y-%m-%d')
+        IMAGE_PATH="cats/cat_$DATE.jpg"
+        mv "cat_$DATE.jpg" $IMAGE_PATH
+        if grep -q "![Random Cat Image]" README.md; then
+          sed -i "s|!\[Random Cat Image\].*|![Random Cat Image]($IMAGE_PATH)|" README.md
+        else
+          echo "![Random Cat Image]($IMAGE_PATH)" >> README.md
+        fi
+
     - name: Commit and push changes
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        DATE=$(date '+%Y-%m-%d')
-        mv "cat_$DATE.jpg" "cats/cat_$DATE.jpg"
-        git add "cats/cat_$DATE.jpg"
-        git commit -m "Add new random cat image for $DATE"
+        git add .
+        git commit -m "Update random cat image for $DATE"
         git push
       env:
         REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
