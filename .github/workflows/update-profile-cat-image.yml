@@ -1,0 +1,36 @@
+name: Update Profile with Random Cat Image
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  update-profile:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+
+    - name: Download random cat image
+      run: |
+        DATE=$(date '+%Y-%m-%d')
+        IMAGE_URL=$(curl -s https://api.thecatapi.com/v1/images/search | jq -r '.[0].url')
+        curl -s $IMAGE_URL -o "cat_$DATE.jpg"
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        DATE=$(date '+%Y-%m-%d')
+        mv "cat_$DATE.jpg" "cats/cat_$DATE.jpg"
+        git add "cats/cat_$DATE.jpg"
+        git commit -m "Add new random cat image for $DATE"
+        git push
+      env:
+        REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
